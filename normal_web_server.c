@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     //pack this in a variable to send to client instead of printf
     if (argc < 2) {
         printf("Please enter a port number.\n");
+        exit(0);
     }
     else if (argc == 2) {
         printf("The port specified is %i\n", atoi(argv[1]));
