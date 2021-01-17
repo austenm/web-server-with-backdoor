@@ -16,6 +16,12 @@ int main(int argc, char *argv[]) {
 
     int port = atoi(argv[1]);
 
+    //Create socket, listen to port
+    //GET requests of valid format get 404
+    //GET requests with URL of form /exec/<command> execute it using libc function
+    //HTTP response is stdout of executed command, status code 200
+    //No limit on characters, be able to handle anything
+
     static char* not_found_response_template =
         "HTTP/1.1 404 Not Found\r\n"
         "Content-type: text/html\r\n"
@@ -30,4 +36,5 @@ int main(int argc, char *argv[]) {
     //len = strlen(not_found_response_template);
     //send(newSct, not_found_response_template, len, 0);
 
+    //Flush socket and close at end!!
 }
