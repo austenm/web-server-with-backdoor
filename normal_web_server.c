@@ -1,9 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-int main() {
+int main(int argc, char *argv[]) {
 
-    printf("\nHello, world!\n\n");
+    //pack this in a variable to send to client instead of printf
+    if (argc < 2) {
+        printf("Please enter a port number.\n");
+    }
+    else if (argc == 2) {
+        printf("The port specified is %i\n", atoi(argv[1]));
+    }
+
+    int port = atoi(argv[1]);
 
     static char* not_found_response_template =
         "HTTP/1.1 404 Not Found\r\n"
@@ -19,4 +29,4 @@ int main() {
     //len = strlen(not_found_response_template);
     //send(newSct, not_found_response_template, len, 0);
 
-};
+}
