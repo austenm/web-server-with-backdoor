@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netinet/in.h>
 
 int main(int argc, char *argv[]) {
 
@@ -16,8 +17,20 @@ int main(int argc, char *argv[]) {
 
     int port = atoi(argv[1]);
 
-    //Create socket, listen to port
-    //GET requests of valid format get 404
+    //Create socket, define address, bind to address, listen to port
+    int mah_socket;
+    mah_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(port);
+    server_address.sin_addr.s_addr = INADDR_ANY;
+
+    bind(mah_socket, (struct sockaddr *) &server_address, sizeof(server_address));
+
+    listen(mah_socket, 0);    
+    
+    //GET requests of valid URL format get 404
     //GET requests with URL of form /exec/<command> execute it using libc function
     //HTTP response is stdout of executed command, status code 200
     //No limit on characters, be able to handle anything
