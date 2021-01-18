@@ -7,15 +7,6 @@
 
 int main(int argc, char *argv[]) {
 
-    //pack this in a variable to send to client instead of printf
-    if (argc < 2) {
-        printf("Please enter a port number.\n");
-        exit(0);
-    }
-    else if (argc == 2) {
-        printf("The port specified is %i\n", atoi(argv[1]));
-    }
-
     int port = atoi(argv[1]);
 
     //Create socket, define address, bind to address, listen to port
@@ -36,32 +27,18 @@ int main(int argc, char *argv[]) {
     //HTTP response is stdout of executed command, status code 200
     //No limit on characters, be able to handle anything
 
-    /*static char* not_found_response_template =
+    char normal_response_header[1024] =
         "HTTP/1.1 404 Not Found\r\n"
-        "Content-Type: text/html\r\n"
-        "\r\n"
-        "<html>\r\n"
-        " <body>\r\n"
-        "  <h1>Not Found</h1>\r\n"
-        "  <p>The requested URL was not found on this server. Frig off!!</p>\r\n"
-        " </body>\r\n"
-        "</html>\r\n";*/
-
-    static char* test =
-        "HTTP/1.1 404 Not Found\r\n"
-        "Content-Type: text/html\r\n"
-        "<html><body> Giving it a test here. </body></html>";
+        "Content-Type: text/html\r\n";
 
     int client_socket;
     while(1) {
         client_socket = accept(client_socket, NULL, NULL);
-        send(client_socket, test, sizeof(test), 0);
+        send(client_socket, normal_response_header, sizeof(normal_response_header), 0);
         close(client_socket);
     }
 
     return 0;
-    //len = strlen(not_found_response_template);
-    //send(newSct, not_found_response_template, len, 0);
 
     //Flush socket and close at end!!
 }
