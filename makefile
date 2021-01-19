@@ -6,3 +6,4 @@ normal_web_server.o: normal_web_server.c
 
 clean:
 	rm *.o normal_web_server
+	
