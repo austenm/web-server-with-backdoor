@@ -2,39 +2,55 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <string.h>
 
 int main(int argc, char *argv[]) {
 
-    //pack this in a variable to send to client instead of printf
-    if (argc < 2) {
-        printf("Please enter a port number.\n");
-        exit(0);
-    }
-    else if (argc == 2) {
-        printf("The port specified is %i\n", atoi(argv[1]));
-    }
-
     int port = atoi(argv[1]);
 
-    //Create socket, listen to port
-    //GET requests of valid format get 404
-    //GET requests with URL of form /exec/<command> execute it using libc function
-    //HTTP response is stdout of executed command, status code 200
-    //No limit on characters, be able to handle anything
+    int server_socket;
+    server_socket = socket(PF_INET, SOCK_STREAM, 0);
 
-    static char* not_found_response_template =
-        "HTTP/1.1 404 Not Found\r\n"
-        "Content-type: text/html\r\n"
-        "\r\n"
-        "<html>\r\n"
-        " <body>\r\n"
-        "  <h1>Not Found</h1>\r\n"
-        "  <p>The requested URL was not found on this server.</p>\r\n"
-        " </body>\r\n"
-        "</html>\r\n";
+    struct sockaddr_in server_address;
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(port);
+    server_address.sin_addr.s_addr = INADDR_ANY;
 
-    //len = strlen(not_found_response_template);
-    //send(newSct, not_found_response_template, len, 0);
+    bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address));
+
+    listen(server_socket, 1);    
+
+    //DOUBLE CHECK THIS HEADER FOR ACCURACY RE: RFC2616
+    //MUST ALLOW GET AND HEAD METHODS, NONE ELSE - code 405 method not allowed
+    char *notfound_response =
+        "HTTP/1.1 404 Not Found\r\n\r\n";
+
+    char *bd_response = 
+        "HTTP/1.1 200 OK\r\n\r\n";
+
+    int client_socket;
+    char client_buffer[1024];
+
+    //Need to figure out how to safely close socket on ^C or SIGINT
+
+    while(1) {
+        client_socket = accept(server_socket, NULL, NULL);
+        recv(client_socket, *client_buffer, sizeof(client_buffer), 0);
+        //parse client_buffer
+        //if GET && url is /exec/command (depends on rtn val){
+        //the_goods = strcat(bd_response, stdout);
+        //send(client_socket, the_goods, strlen(the_goods), 0);
+        //}
+        
+        //else {
+        send(client_socket, notfound_response, strlen(notfound_response), 0);
+        close(client_socket);
+        //}
+    }
+
+    return 0;
 
     //Flush socket and close at end!!
 }
