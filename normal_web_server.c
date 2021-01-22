@@ -15,6 +15,13 @@ int parse(const char *request) {
     }
 }
 
+const char* get_cmd(char request[]) {
+    size_t b4_cmd = strspn(request, "GET /exec/");
+    request += b4_cmd;
+    char* token = strtok(request, " ");
+    return token;
+}
+
 int main(int argc, char *argv[]) {
 
     int port = atoi(argv[1]);
@@ -37,7 +44,8 @@ int main(int argc, char *argv[]) {
         "HTTP/1.1 404 Not Found\r\n\r\n";
 
     char *bd_response = 
-        "HTTP/1.1 200 OK\r\n\r\n";
+        "HTTP/1.1 200 OK\r\n\r\n"
+        "<html><body>pennies from heaven, shooby dooby</body></html>\r\n\r\n";
 
     int client_socket;
     char client_buffer[1024];
@@ -48,20 +56,23 @@ int main(int argc, char *argv[]) {
         client_socket = accept(server_socket, NULL, NULL);
         recv(client_socket, &client_buffer, sizeof(client_buffer), 0);
         int bd_check = parse(client_buffer);
+
         if (bd_check > 0) {
-            //cmd = getcmd(client_buffer);
+            const char* cmd = get_cmd(client_buffer);
+            printf("The command is %s\n", cmd);
             //out = system(cmd);
             //the_goods = strcat(bd_response, out);
             send(client_socket, bd_response, strlen(bd_response), 0);
+            close(client_socket);
         }
         //send(client_socket, the_goods, strlen(the_goods), 0);
         
         else {
-        send(client_socket, notfound_response, strlen(notfound_response), 0);
-        close(client_socket);
+            send(client_socket, notfound_response, strlen(notfound_response), 0);
+            close(client_socket);
         }
     }
-
+    
     return 0;
 
     //Flush socket and close at end!!
