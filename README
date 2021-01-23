@@ -1,14 +1,48 @@
 Name: Austen Mack
 ID: 1000914498
-Description: This program implements a simple web server with backdoor functionality. It takes an argument from the command line to serve on a specified port, and then the socket is set up. The socket integer is initialized with parameters indicating that it's a network socket, streaming (TCP) with no additional modifications to the protocol (0 flag). 
-The various parts of the address are set up next. Family is network port, the port number is passed using the htons() function, which guarantees the correct endianess. The s_addr part is set to INADDR_ANY, which allows it to use any connection on the network interface.
-Next is socket binding, where the socket integer is associated with the address information, and then the socket is ready to listen for connections. I chose a queue of 1 even though I don't believe we are being tested on multiple connections.
-The next section of my program initializes a few things to be used in the main loop. The HTTP status lines are here, as well as the client_socket integer and a buffer for storing the request.
-Inside the While loop, the server is able to accept a connection and the recv() function sends the client request to the client_buffer. 
-The request is sent to a function called parse() which checks whether the backdoor command was used. The function returns a 1 if the backdoor is used and 0 if not, which prompts a 404 response and the server closes the connection.
-If the backdoor command is used, the request is sent to the get_cmd() function which brushes past the GET /exec/ part of the request and looks for the first whitespace. Since the command is URL encoded, the first whitespace will separate the command from the HTTP type. The strtok() function packs the command in a variable and returns it to the variable cmd.
-Back in the main loop, a char array called dc_cmd is declared as an output variable for the decode() function, which takes the raw URL-encoded input and parses all the hex characters.
-Decode has two pointers and two variables, and as it scans along the input string it searches for the % that indicates hex characters. If one is found, the two variables are checked for being potential hex values and assigned to the two characters that follow the %. Each one goes through a process that converts its hex value to its ascii value and is appended to the output, with an EOF character added to the very end. 
-Back in the main loop, an intermediate variable is declared and the char array that holds the stdout is initialized to empty strings. The streaming file for popen is also created.
-The decoded command is passed to popen in read mode, and a while loop with fgets writes each line of the stdout to the out array. The streaming file is then pclosed.
-The 200 status line and output are then sent back to the client and the client socket is closed. 
+Description: 
+
+This program implements a simple web server with backdoor functionality. It 
+takes an argument from the command line to serve on a specified port, and then the socket 
+is set up. The socket integer is initialized with parameters indicating that it's a 
+network socket, streaming (TCP) with no additional modifications to the protocol (0 flag). 
+
+The various parts of the address are set up next. Family is network port, the port number 
+is passed using the htons() function, which guarantees the correct endianess. The s_addr 
+part is set to INADDR_ANY, which allows it to use any connection on the network interface.
+
+Next is socket binding, where the socket integer is associated with the address 
+information, and then the socket is ready to listen for connections. I chose a queue of 
+1 even though I don't believe we are being tested on multiple connections.
+
+The next section of my program initializes a few things to be used in the main loop. The 
+HTTP status lines are here, as well as the client_socket integer and a buffer for storing 
+the request.
+
+Inside the While loop, the server is able to accept a connection and the recv() function 
+sends the client request to the client_buffer. 
+
+The client_buffer is then passed to the decode() function and the results are stored in a 
+variable. Decode has two pointers and two variables, and as it scans along the input 
+string it searches for the % that indicates hex characters. If one is found, the two 
+variables are checked for being potential hex values and assigned to the two characters 
+that follow the %. Each one goes through a process that converts its hex value to its 
+utf-8 value and is appended to the output, with an EOF character added to the very end. 
+
+The request is sent to a function called parse() which checks whether the backdoor command 
+was used. The function returns a 1 if the backdoor is used and 0 if not, which prompts a 
+404 response and the server closes the connection.
+
+If the backdoor command is used, the request is sent to the get_cmd() function which 
+brushes past the GET /exec/ part of the request and looks for the first whitespace. Since 
+the command is URL encoded, the first whitespace will separate the command from the HTTP 
+type. The strtok() function packs the command in a variable and returns it to the variable cmd.
+
+Back in the main loop, an intermediate variable is declared and the char array that holds 
+the stdout is initialized to empty strings. The streaming file for popen is also created.
+
+The decoded command is passed to popen in read mode, and a while loop with fgets writes 
+each line of the stdout to the out array. The streaming file is then pclosed.
+
+The 200 status line and output are then sent back to the client and the client socket is 
+closed. 

