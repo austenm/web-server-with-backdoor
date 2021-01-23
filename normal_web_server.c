@@ -106,7 +106,6 @@ int main(int argc, char *argv[]) {
             char* cmd = get_cmd(client_buffer);
             char dc_cmd[strlen(cmd) + 1];
             decode(cmd, dc_cmd);
-            printf("%s\n", dc_cmd);
             
             char cart[1024];
             char out[1024] = "";
