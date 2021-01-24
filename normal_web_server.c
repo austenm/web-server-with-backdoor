@@ -21,6 +21,9 @@ char* get_cmd(char request[]) {
     return token;
 }
 
+//ishex function was found at
+//https://rosettacode.org/wiki/URL_decoding#C
+
 int ishex(int x)
 {
 	return	(x >= '0' && x <= '9')	||
@@ -28,6 +31,9 @@ int ishex(int x)
 		(x >= 'A' && x <= 'F');
 }
  
+//This code is heavily inspired by the method found at
+//https://stackoverflow.com/questions/2673207/c-c-url-decode-library
+
 int decode(const char *input, char *output) {
     char h1;
     char h2;
