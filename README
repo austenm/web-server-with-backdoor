@@ -1,7 +1,3 @@
-Name: Austen Mack
-ID: 1000914498
-Description: 
-
 This program implements a simple web server with backdoor functionality. It 
 takes an argument from the command line to serve on a specified port, and then the socket 
 is set up. The socket integer is initialized with parameters indicating that it's a 
